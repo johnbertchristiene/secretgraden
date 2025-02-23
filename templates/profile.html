@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container my-5" style="max-width: 1000px;">
+    <div class="bg-light p-4 rounded shadow">
+        <!-- Display Cover Photo -->
+        <div class="cover-photo-section mb-4">
+            {% if cover_photo %}
+                <div id="coverPhotoCarousel" class="carousel slide" data-bs-ride="carousel">
+                    <div class="carousel-inner">
+                        <div class="carousel-item active">
+                            <!-- Cover Photo is clickable to upload a new one -->
+                            <a href="{{ url_for('upload_cover_photos') }}">
+                                <img 
+                                    src="{{ url_for('static', filename='uploads/cp/' ~ cover_photo.filename) }}" 
+                                    class="d-block w-100" 
+                                    alt="Your Cover Photo"
+                                    style="opacity: 0.8; transition: opacity 0.3s;">
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="text-center">
+                    <p class="text-muted">You haven't uploaded a cover photo yet. Upload <a href="{{ url_for('upload_cover_photos') }}">here.</a></p>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Notes Section -->
+        <div class="text-center">
+            <h1 class="note-title">My Notes</h1>
+            <p class="note-meta text-muted">Hello, <strong>{{ username }}</strong>! All of your notes are displayed here.</p>
+
+            <!-- Search, Filter, and Add Note Section -->
+            <div class="row g-3 my-4 align-items-center">
+                <!-- Search Bar -->
+                <div class="col-sm-6 col-md-3">
+                    <input
+                        type="text"
+                        id="searchBar"
+                        class="form-control"
+                        placeholder="Search notes..."
+                        oninput="filterNotes()"
+                    />
+                </div>
+
+<!-- Tag Filter -->
+<div class="col-sm-6 col-md-3">
+    <select
+        id="tagFilter"
+        class="form-select"
+        onchange="filterNotes()"
+    >
+        <option value="">All Tags</option>
+        {% if uncategorized_notes %}
+            <option value="__uncategorized__">(Uncategorized)</option>
+        {% endif %}
+        {% for category in categories %}
+            <option value="{{ category['encrypted_name'] }}">{{ category['decrypted_name'] }}</option>
+        {% endfor %}
+    </select>
+</div>
+
+
+                <!-- Compost Bin Button -->
+                <div class="col-sm-6 col-md-3 text-end">
+                    <a href="{{ url_for('compost_bin') }}" class="btn btn-outline-secondary w-100">
+                        <i class="fas fa-trash"></i> Compost Bin
+                    </a>
+                </div>
+
+                <!-- Write Note Button -->
+                <div class="col-sm-6 col-md-3 text-end">
+                    <a href="{{ url_for('add_note') }}" class="btn btn-success w-100">
+                        <i class="fas fa-plus"></i> Write Note
+                    </a>
+                </div>
+            </div>
+
+            <div class="notes-list mt-4">
+                <ul class="list-unstyled" id="notesList">
+                    {% for note_data in notes %}
+                    <li
+                        class="note-item p-3 mb-4 rounded shadow-sm hover-effect"
+                        style="background-color: #d5e8d4;"
+                        data-title="{{ note_data.decrypted_title | lower }}"
+                        data-tag="{{ note_data.note.category.name | lower if note_data.note.category else '__uncategorized__' }}"
+                    >
+                        <a href="{{ url_for('view_note', note_id=note_data.note.id) }}" class="note-link text-success fw-bold">
+                            <h5 class="note-title mb-1">{{ note_data.decrypted_title }}</h5>  <!-- Decrypted Title -->
+                            <p class="note-date text-muted mb-1">
+                                {{ note_data.note.created_at.strftime('%b %d, %Y') }}
+                            </p>
+                            <p class="note-category text-muted mb-0">
+                                <i class="fas fa-tag"></i> {{ note_data.decrypted_category_name if note_data.decrypted_category_name else 'Uncategorized' }}
+                            </p>
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="text-muted">No notes available.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for Successful Deletion -->
+<div class="modal fade" id="deleteSuccessModal" tabindex="-1" aria-labelledby="deleteSuccessModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteSuccessModalLabel"><i class="fas fa-trash"></i> Note Deleted</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-dark">
+                The note has been successfully deleted.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const deleteSuccess = "{{ delete_success | trim | lower }}";
+        if (deleteSuccess === "true") {
+            const deleteSuccessModal = new bootstrap.Modal(document.getElementById('deleteSuccessModal'));
+            deleteSuccessModal.show();
+        }
+    });
+
+    function filterNotes() {
+        const searchInput = document.getElementById('searchBar').value.toLowerCase();
+        const selectedTag = document.getElementById('tagFilter').value.toLowerCase();
+        const notes = document.querySelectorAll('.note-item');
+
+        notes.forEach(note => {
+            const title = note.getAttribute('data-title');
+            const tag = note.getAttribute('data-tag');
+
+            if (
+                (searchInput === '' || title.includes(searchInput)) &&
+                (selectedTag === '' || tag === selectedTag)
+            ) {
+                note.style.display = '';
+            } else {
+                note.style.display = 'none';
+            }
+        });
+    }
+</script>
+{% endblock %}

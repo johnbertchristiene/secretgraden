@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5" style="max-width: 1000px;">
+    <div class="bg-light p-5 rounded shadow">
+        <!-- Form Header -->
+        <div class="form-header text-center mb-4">
+            <h1 class="note-title"><i class="fas fa-edit"></i> Edit Note</h1>
+            <p class="note-meta text-muted">Modify your note details below</p>
+        </div>
+
+        <!-- Edit Note Form -->
+        <form method="post" enctype="multipart/form-data">
+            <!-- Note Title -->
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="title" class="form-label"><strong>Title</strong></label>
+                    <input type="text" id="title" name="title" class="form-control" value="{{ title | safe }}" required>
+                </div>
+
+                <!-- Combined Tag Selection -->
+                <div class="col-md-6 mb-3">
+                    <label for="tagInput" class="form-label"><strong>Tag</strong></label>
+                    <select
+                        id="tagInput"
+                        name="category"
+                        class="form-select"
+                        onchange="handleCustomTagOption(this)"
+                        onfocus="enableCustomInput(this)"
+                        oninput="updateCustomTag(this)"
+                    >
+                        <option value="" disabled {% if not note.category %}selected{% endif %}>Select or Enter Tag</option>
+                        <option value="__custom__" {% if note.category and note.category.name == "__custom__" %}selected{% endif %}>+ Add Custom Tag</option>
+                        {% for category_item in categories %}
+                            <option value="{{ category_item.name }}" {% if category and category == category_item.name %}selected{% endif %}>
+                                {{ category_item.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    <input
+                        type="text"
+                        id="customTagInput"
+                        name="category"
+                        class="form-control mt-2 d-none"
+                        placeholder="Enter custom tag"
+                        oninput="updateCustomTagValue(this)"
+                    />
+                </div>
+            </div>
+
+            <!-- Note Content -->
+            <div class="mb-3">
+                <label for="content" class="form-label"><strong>Content</strong></label>
+                <textarea id="content" name="content" class="form-control" rows="5" required>{{ content }}</textarea>
+            </div>
+
+            <!-- Media Upload -->
+            <div class="mb-3">
+                <label for="media" class="form-label"><strong>Update Media (optional)</strong></label>
+                <input type="file" id="media" name="media" class="form-control" accept="image/*">
+                {% if media_path %}
+                <small class="text-muted d-block mt-2">
+                    Current Media: <a href="{{ media_path }}" target="_blank">View Existing Media</a>
+                </small>
+                {% endif %}
+            </div>
+
+            <!-- Form Actions -->
+            <div class="text-center mt-4">
+                <button type="submit" class="btn btn-success">
+                    <i class="fas fa-save"></i> Save Changes
+                </button>
+                <a href="{{ url_for('view_note', note_id=note.id) }}" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function handleCustomTagOption(selectElement) {
+        const customTagInput = document.getElementById("customTagInput");
+
+        if (selectElement.value === "__custom__") {
+            // Show custom tag input field
+            customTagInput.classList.remove("d-none");
+            customTagInput.required = true;
+            customTagInput.focus();
+        } else {
+            // Hide custom tag input field and clear its value
+            customTagInput.classList.add("d-none");
+            customTagInput.required = false;
+            customTagInput.value = ""; // Clear input field when switching
+        }
+    }
+
+    function updateCustomTagValue(inputElement) {
+        const tagSelect = document.getElementById("tagInput");
+        const customTagValue = inputElement.value.trim();
+
+        if (customTagValue !== "") {
+            // Set the select value to the custom tag entered in the input field
+            tagSelect.value = customTagValue;
+        } else {
+            // If the input is empty, reset the select value to 'custom'
+            tagSelect.value = "__custom__";
+        }
+    }
+</script>
+{% endblock %}

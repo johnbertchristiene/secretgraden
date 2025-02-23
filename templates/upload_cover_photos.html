@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container my-5" style="max-width: 600px;">
+    <div class="bg-light p-4 rounded shadow">
+        <h2 class="text-center">Upload Cover Photo</h2>
+        <p class="note-meta text-muted">Manage your cover photo upload here.</p>
+        
+        {% if message %}
+            <div class="alert alert-info text-center">{{ message }}</div>
+        {% endif %}
+
+        {% if cover_photo %}
+            <div class="text-center mb-4">
+                <!-- Display Current Cover Photo -->
+                <a href="{{ url_for('upload_cover_photos') }}">
+                    <img 
+                        src="{{ url_for('static', filename='uploads/cp/' ~ cover_photo.filename) }}" 
+                        class="d-block w-100 mb-3"
+                        alt="Your Current Cover Photo"
+                        style="opacity: 0.8;">
+                </a>
+
+                <!-- Delete Button -->
+                <button 
+                    type="button" 
+                    class="btn btn-danger w-100"
+                    data-bs-toggle="modal" 
+                    data-bs-target="#deleteModal">
+                    <i class="fas fa-trash-alt"></i> Delete Cover Photo
+                </button>
+            </div>
+        {% else %}
+            <form method="POST" enctype="multipart/form-data">
+                <div class="mb-3">
+                    <label for="cover_photo" class="form-label">Choose a Cover Photo</label>
+                    <input type="file" name="cover_photo" class="form-control" required>
+                </div>
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary w-100">Upload</button>
+                </div>
+            </form>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Confirmation Modal for Deleting Cover Photo -->
+{% if cover_photo %}
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteModalLabel"><i class="fas fa-warning"></i> Confirm Deletion</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-dark">
+                <p>Are you sure you want to delete this cover photo? This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <!-- Delete Cover Photo Form -->
+                <form method="POST" action="{{ url_for('delete_cover_photo', photo_id=cover_photo.id) }}">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

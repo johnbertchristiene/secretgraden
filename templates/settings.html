@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container my-5" style="max-width: 500px;">
+    <div class="bg-light p-4 rounded shadow">
+        <h2 class="text-center">Settings</h2>
+        <form method="POST" action="/update_password">
+            <div class="mb-3">
+                <label for="current_password" class="form-label">Current Password</label>
+                <input 
+                    type="password" 
+                    id="current_password" 
+                    name="current_password" 
+                    class="form-control" 
+                    placeholder="Enter your current password" 
+                    required>
+            </div>
+            <div class="mb-3">
+                <label for="new_password" class="form-label">New Password</label>
+                <input 
+                    type="password" 
+                    id="new_password" 
+                    name="new_password" 
+                    class="form-control" 
+                    placeholder="Enter your new password" 
+                    required>
+            </div>
+            <div class="mb-3">
+                <label for="confirm_password" class="form-label">Confirm New Password</label>
+                <input 
+                    type="password" 
+                    id="confirm_password" 
+                    name="confirm_password" 
+                    class="form-control" 
+                    placeholder="Confirm your new password" 
+                    required>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Update Password</button>
+            {% if error_message %}
+            <div class="alert alert-danger mt-3">{{ error_message }}</div>
+            {% endif %}
+            {% if success_message %}
+            <div class="alert alert-success mt-3">{{ success_message }}</div>
+            {% endif %}
+        </form>
+    </div>
+</div>
+{% endblock %}

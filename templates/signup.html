@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container my-5" style="max-width: 400px;">
+    <div class="bg-light p-4 rounded shadow">
+        <h2 class="text-center">Sign up</h2>
+        <form method="POST" id="signupForm">
+            <!-- Username Field -->
+            <div class="mb-3">
+                <label for="username" class="form-label">Username</label>
+                <input
+                    type="text"
+                    name="username"
+                    id="username"
+                    class="form-control"
+                    placeholder="Username"
+                    required>
+                <div id="usernameFeedback" class="form-text"></div>
+            </div>
+
+            <!-- Password Field -->
+            <div class="mb-3">
+                <label for="password" class="form-label">Password</label>
+                <input
+                    type="password"
+                    name="password"
+                    id="password"
+                    class="form-control"
+                    placeholder="Password"
+                    required>
+                <div id="passwordFeedback" class="form-text"></div>
+            </div>
+
+            <!-- Confirm Password Field -->
+            <div class="mb-3">
+                <label for="confirmPassword" class="form-label">Confirm Password</label>
+                <input
+                    type="password"
+                    name="confirmPassword"
+                    id="confirmPassword"
+                    class="form-control"
+                    placeholder="Confirm Password"
+                    required>
+                <div id="confirmPasswordFeedback" class="form-text"></div>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary w-100" id="signupButton">Sign up</button>
+            </div>
+
+            <p class="mt-3 text-center">
+                Already have an account? <a href="{{ url_for('login') }}">Login</a>
+            </p>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const usernameInput = document.getElementById('username');
+        const usernameFeedback = document.getElementById('usernameFeedback');
+        const passwordInput = document.getElementById('password');
+        const confirmPasswordInput = document.getElementById('confirmPassword');
+        const passwordFeedback = document.getElementById('passwordFeedback');
+        const confirmPasswordFeedback = document.getElementById('confirmPasswordFeedback');
+        const signupButton = document.getElementById('signupButton');
+
+        // Real-time username availability check
+        usernameInput.addEventListener('input', () => {
+            const username = usernameInput.value.trim();
+            if (username.length > 0) {
+                fetch('/check_username', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.exists) {
+                        usernameFeedback.textContent = 'Username is already taken.';
+                        usernameFeedback.style.color = 'red';
+                        signupButton.disabled = true;
+                    } else {
+                        usernameFeedback.textContent = '';
+                        signupButton.disabled = false;
+                    }
+                });
+            } else {
+                usernameFeedback.textContent = '';
+            }
+        });
+
+        // Password requirements check
+        passwordInput.addEventListener('input', () => {
+            const password = passwordInput.value;
+            if (password.length < 8) {
+                passwordFeedback.textContent = 'Password must be at least 8 characters.';
+                passwordFeedback.style.color = 'red';
+                signupButton.disabled = true;
+            } else {
+                passwordFeedback.textContent = '';
+                passwordFeedback.style.color = 'green';
+                signupButton.disabled = false;
+            }
+
+            // Check if confirm password matches
+            checkPasswordMatch();
+        });
+
+        // Confirm Password Match Check
+        confirmPasswordInput.addEventListener('input', () => {
+            checkPasswordMatch();
+        });
+
+        function checkPasswordMatch() {
+            const password = passwordInput.value;
+            const confirmPassword = confirmPasswordInput.value;
+
+            if (confirmPassword !== password) {
+                confirmPasswordFeedback.textContent = 'Passwords do not match.';
+                confirmPasswordFeedback.style.color = 'red';
+                signupButton.disabled = true;
+            } else {
+                confirmPasswordFeedback.textContent = '';
+                confirmPasswordFeedback.style.color = 'green';
+                signupButton.disabled = false;
+            }
+        }
+    });
+</script>
+{% endblock %}

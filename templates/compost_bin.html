@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5" style="max-width: 1000px;">
+    <div class="bg-light p-5 rounded shadow">
+        <h1 class="text-center mb-4">Compost Bin</h1>
+
+        {% if notes %}
+            <div class="list-group">
+                {% for note_data in notes %}
+                    <div class="list-group-item">
+                        <h5>{{ note_data.decrypted_title }}</h5>  <!-- Decrypted Title -->
+                        <p><strong>Deleted on:</strong> {{ note_data.note.date_deleted.strftime('%B %d, %Y %I:%M %p') }}</p>
+                        <p><strong>Category:</strong> {{ note_data.decrypted_category }}</p>  <!-- Decrypted Category -->
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('restore_note', note_id=note_data.note.id) }}" class="btn btn-sm btn-success">
+                                <i class="fas fa-undo"></i> Restore
+                            </a>
+                            <a href="{{ url_for('permanently_delete_note', note_id=note_data.note.id) }}" class="btn btn-sm btn-danger">
+                                <i class="fas fa-trash"></i> Permanently Delete
+                            </a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="text-center">Your Compost Bin is empty. Deleted notes will appear here.</p>
+        {% endif %}
+
+        <div class="text-center mt-4">
+            <a href="{{ url_for('profile') }}" class="btn btn-primary">
+                <i class="fas fa-arrow-left"></i> Back to Profile
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

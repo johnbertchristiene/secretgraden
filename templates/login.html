@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container my-5" style="max-width: 400px;">
+    <div class="bg-light p-4 rounded shadow">
+        <h2 class="text-center">Log in</h2>
+        <form method="POST">
+            <!-- Username Field -->
+            <div class="mb-3">
+                <label for="username" class="form-label">Username</label>
+                <input
+                    type="text"
+                    id="username"
+                    name="username"
+                    class="form-control"
+                    placeholder="Enter your username"
+                    value="{{ username }}"
+                    required
+                />
+            </div>
+
+            <!-- Password Field -->
+            <div class="mb-3 password-container">
+                <label for="password" class="form-label">Password</label>
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    class="form-control"
+                    placeholder="Enter your password"
+                    required
+                />
+                <span class="show-password" id="togglePassword" onclick="togglePassword()"></span>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary w-100">Log in</button>
+            </div>
+
+            <!-- Error Modal Trigger -->
+            {% if error_message %}
+            <div class="alert alert-danger mt-3">{{ error_message }}</div>
+            {% endif %}
+
+            <p class="mt-3 text-center">
+                Don't have an account? <a href="{{ url_for('signup') }}">Sign up</a>
+            </p>
+        </form>
+    </div>
+</div>
+
+<script>
+    function togglePassword() {
+        const passwordField = document.getElementById('password');
+        const toggleText = document.getElementById('togglePassword');
+        
+        if (passwordField.type === 'password') {
+            passwordField.type = 'text';
+            toggleText.textContent = 'Hide'; // Change text to "Hide"
+        } else {
+            passwordField.type = 'password';
+            toggleText.textContent = 'Show'; // Change text back to "Show"
+        }
+    }
+</script>
+{% endblock %}
