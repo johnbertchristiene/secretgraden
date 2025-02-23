@@ -1,0 +1,4 @@
+py -m ensurepip --upgrade
+py -m pip install flask
+py -m pip install sqlalchemy
+py -m pip install pytz
